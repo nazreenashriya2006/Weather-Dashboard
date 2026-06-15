@@ -1,68 +1,40 @@
-async function loadProducts() {
-try {
-const response = await fetch("./products.json");
+async function getWeather() {
+    const city = document.getElementById("cityInput").value;
+    const result = document.getElementById("weatherResult");
 
-```
-    if (!response.ok) {
-        throw new Error("Cannot load products.json");
+    if (!city) {
+        result.innerHTML = "Please enter a city name";
+        return;
     }
 
-    const products = await response.json();
-
-    displayProducts(products);
-
-    document.getElementById("searchInput").addEventListener("input", function () {
-        const searchValue = this.value.toLowerCase();
-
-        const filtered = products.filter(product =>
-            product.name.toLowerCase().includes(searchValue)
+    try {
+        const geoResponse = await fetch(
+            `https://geocoding-api.open-meteo.com/v1/search?name=${city}&count=1`
         );
 
-        displayProducts(filtered);
-    });
+        const geoData = await geoResponse.json();
 
-    document.getElementById("categoryFilter").addEventListener("change", function () {
-        const category = this.value;
-
-        if (category === "All") {
-            displayProducts(products);
-        } else {
-            const filtered = products.filter(
-                product => product.category === category
-            );
-
-            displayProducts(filtered);
+        if (!geoData.results) {
+            result.innerHTML = "City not found";
+            return;
         }
-    });
 
-} catch (error) {
-    document.getElementById("productsContainer").innerHTML =
-        "<h2 style='color:white;text-align:center;'>Error loading products</h2>";
+        const latitude = geoData.results[0].latitude;
+        const longitude = geoData.results[0].longitude;
+
+        const weatherResponse = await fetch(
+            `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,relative_humidity_2m,wind_speed_10m`
+        );
+
+        const weatherData = await weatherResponse.json();
+
+        result.innerHTML = `
+            <h2>${city}</h2>
+            <p>🌡 Temperature: ${weatherData.current.temperature_2m} °C</p>
+            <p>💧 Humidity: ${weatherData.current.relative_humidity_2m}%</p>
+            <p>💨 Wind Speed: ${weatherData.current.wind_speed_10m} km/h</p>
+        `;
+    } catch (error) {
+        result.innerHTML = "Error fetching weather data";
+    }
 }
-```
-
-}
-
-function displayProducts(products) {
-const container = document.getElementById("productsContainer");
-
-```
-container.innerHTML = "";
-
-products.forEach(product => {
-    container.innerHTML += `
-        <div class="product-card">
-            <img src="${product.image}" alt="${product.name}">
-            <div class="product-info">
-                <h3>${product.name}</h3>
-                <p class="price">₹${product.price}</p>
-                <p class="category">${product.category}</p>
-            </div>
-        </div>
-    `;
-});
-```
-
-}
-
-loadProducts();
