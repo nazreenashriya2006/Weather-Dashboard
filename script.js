@@ -3,26 +3,25 @@ async function getWeather() {
     const result = document.getElementById("weatherResult");
 
     if (!city) {
-        result.innerHTML = "<p>Please enter a city name.</p>";
+        result.innerHTML = "Please enter a city name";
         return;
     }
 
     try {
-        // Get coordinates
         const geoResponse = await fetch(
             `https://geocoding-api.open-meteo.com/v1/search?name=${city}&count=1`
         );
+
         const geoData = await geoResponse.json();
 
         if (!geoData.results) {
-            result.innerHTML = "<p>City not found.</p>";
+            result.innerHTML = "City not found";
             return;
         }
 
         const latitude = geoData.results[0].latitude;
         const longitude = geoData.results[0].longitude;
 
-        // Get weather
         const weatherResponse = await fetch(
             `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,relative_humidity_2m,wind_speed_10m`
         );
@@ -36,6 +35,6 @@ async function getWeather() {
             <p>💨 Wind Speed: ${weatherData.current.wind_speed_10m} km/h</p>
         `;
     } catch (error) {
-        result.innerHTML = "<p>Error fetching weather data.</p>";
+        result.innerHTML = "Error fetching weather data";
     }
 }
