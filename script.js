@@ -24,8 +24,9 @@ async function getWeather() {
         const lon = geoData.results[0].longitude;
 
         // Get weather
-        const weatherResponse = await fetch(
-            `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,wind_speed_10m`
+       const weatherResponse = await fetch(
+`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,wind_speed_10m`
+);
         );
 
         const weatherData = await weatherResponse.json();
